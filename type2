@@ -1,0 +1,62 @@
+module dem(
+    input clk, rst,
+    output [7:0] count  // Đổi từ O thành count
+);
+    reg [7:0] R;
+
+    always @(posedge clk or posedge rst) begin
+        if (rst)
+            R <= 0;
+        else if (R == 99)
+            R <= 0;
+        else
+            R <= R + 1;
+    end
+
+    assign count = R;
+
+endmodule
+
+module bcd_to_7seg(
+    input [3:0] bcd,
+    output reg [6:0] seg
+);
+    always @(*) begin
+        case (bcd)
+            4'b0000: seg = 7'b0111111; // 0
+            4'b0001: seg = 7'b0000110; // 1
+            4'b0010: seg = 7'b1011011; // 2
+            4'b0011: seg = 7'b1001111; // 3
+            4'b0100: seg = 7'b1100110; // 4
+            4'b0101: seg = 7'b1101101; // 5
+            4'b0110: seg = 7'b1111101; // 6
+            4'b0111: seg = 7'b0000111; // 7
+            4'b1000: seg = 7'b1111111; // 8
+            4'b1001: seg = 7'b1101111; // 9
+            default: seg = 7'b0000000; // Tắt hết LED nếu sai
+        endcase
+    end
+endmodule
+
+module thu(
+    input clk, rst,
+    output [6:0] seg1, // Hàng chục
+    output [6:0] seg2  // Hàng đơn vị
+);
+    wire [7:0] count;
+    reg [3:0] tens, units;
+
+    // Gọi module đếm từ 0 đến 99
+    dem counter(.clk(clk), .rst(rst), .count(count));
+
+    // Chia số ra hàng chục và hàng đơn vị
+    always @(*) begin
+        tens  = count / 10;
+        units = count % 10;
+    end
+
+    // Hiển thị lên LED 7 đoạn
+    bcd_to_7seg display_tens(.bcd(tens), .seg(seg1));
+    bcd_to_7seg display_units(.bcd(units), .seg(seg2));
+
+endmodule
