@@ -1,0 +1,18 @@
+module up_down_counter (
+    input up, 
+    input reset ,                  
+    output [3:0] leds
+);
+    reg [3:0] count;
+
+ always @(posedge reset or posedge up )
+ begin
+if (reset)    
+        count <= 0 ;
+else if (up) 
+        count <= count + 1;
+end 
+
+assign leds = ~count;
+
+endmodule
